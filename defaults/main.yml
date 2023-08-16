@@ -1,0 +1,29 @@
+role_ssl_certificate_domain_name: "{{ undef(hint='You must specify domain name') }}"
+role_ssl_certificate_files_name: "{{ undef(hint='You must specify files prefix') }}"
+
+role_ssl_certificate_dir: "/etc/ssl/private"
+role_ssl_certificate_dir_owner: "root"
+role_ssl_certificate_dir_group: "root"
+role_ssl_certificate_dir_mode: "0700"
+
+role_ssl_certificate_files_owner: "root"
+role_ssl_certificate_files_group: "root"
+role_ssl_certificate_files_mode: "0600"
+
+role_ssl_certificate_key: "{{ undef(hint='You must specify certificate key') }}"
+role_ssl_certificate_cert: "{{ undef(hint='You must specify certificate') }}"
+role_ssl_certificate_intermediate: ""
+role_ssl_certificate_root: ""
+
+role_ssl_certificate_cert_ext: "crt"
+role_ssl_certificate_key_ext: "key"
+role_ssl_certificate_root_ext: "root"
+role_ssl_certificate_intermediate_ext: "intermediate"
+role_ssl_certificate_bundle_filename_ext: "bundle"
+role_ssl_certificate_bundle_short_filename_ext: "bundle_short"
+
+role_ssl_certificate_pip_extra_args: ""
+role_ssl_certificate_pip_cryptography_version_min: "1.6"
+role_ssl_certificate_need_check: true
+
+_short_domain_name: ""

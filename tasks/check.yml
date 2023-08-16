@@ -1,0 +1,53 @@
+- name: "Get certificate information | {{ role_ssl_certificate_files_name }}"
+  community.crypto.x509_certificate_info:
+    path: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_cert_ext }}"
+  register: result
+
+- name: "Get private key information | {{ role_ssl_certificate_files_name }}"
+  community.crypto.openssl_privatekey_info:
+    path: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_key_ext }}"
+  register: result_privatekey
+
+- name: "Get root information | {{ role_ssl_certificate_files_name }}"
+  community.crypto.x509_certificate_info:
+    path: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_root_ext }}"
+  when: role_ssl_certificate_root is defined and role_ssl_certificate_root | length > 0
+
+- name: "Get intermediate information | {{ role_ssl_certificate_files_name }}"
+  community.crypto.x509_certificate_info:
+    path: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_intermediate_ext }}"
+  when: role_ssl_certificate_intermediate is defined and role_ssl_certificate_intermediate | length > 0
+
+- name: "Certificate assertions keys | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.assert:
+    that:
+      - result.public_key == result_privatekey.public_key
+    fail_msg: "keys value is not equals for domain name: {{ role_ssl_certificate_domain_name }}"
+
+- name: "Certificate assertions keys | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.assert:
+    that:
+      - result.public_key == result_privatekey.public_key
+    fail_msg: "keys value is not equals for domain name: {{ role_ssl_certificate_domain_name }}"
+
+- name: "Set short domain name | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.set_fact:
+    _short_domain_name: "{{ '.'.join(role_ssl_certificate_domain_name.split('.')[-2::1]) }}"
+  when: "role_ssl_certificate_domain_name.split('.') | length > 1"
+
+- name: "Certificate assertions domain name | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.assert:
+    that: >
+      '*.{{ role_ssl_certificate_domain_name }}' == result.subject.commonName or
+      '{{ role_ssl_certificate_domain_name }}' == result.subject.commonName or
+      '{{ _short_domain_name }}' == result.subject.commonName or
+      '*.{{ _short_domain_name }}' == result.subject.commonName
+    fail_msg: "Certificate '{{ result.subject.commonName }}' is not valid for domain name: {{ role_ssl_certificate_domain_name }}"
+
+- name: "Certificate assertions expiration | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.assert:
+    that:
+      - not result.expired
+    fail_msg: >-
+      "Certificate for domain '{{ role_ssl_certificate_domain_name }}' has expired
+      at {{ result.not_after[6:8:] }}.{{ result.not_after[4:6:] }}.{{ result.not_after[:4:] }}"

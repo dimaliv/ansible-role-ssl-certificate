@@ -1,0 +1,26 @@
+---
+galaxy_info:
+  namespace: dimaliv
+  role_name: docker_project
+  description: Deploy docker compose or docker swarm project.
+  author: Livshits Dmitry
+  license: "license MIT"
+  min_ansible_version: "2.7"
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+        - buster
+    - name: OracleLinux
+      versions:
+        - "7.9"
+        - "8.0"
+  galaxy_tags:
+    - docker
+    - docker-compose
+    - deploy
+    - docker-swarm
+
+dependencies: []
+
+allow_duplicates: true

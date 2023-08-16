@@ -1,0 +1,72 @@
+- name: Install cryptography
+  tags: pip
+  ansible.builtin.pip:
+    name: "cryptography>={{ role_ssl_certificate_pip_cryptography_version_min }}"
+    state: present
+
+- name: "Ensures that certificate dir exists | {{ role_ssl_certificate_dir }}"
+  ansible.builtin.file:
+    path: "{{ role_ssl_certificate_dir }}"
+    state: directory
+    mode: "{{ role_ssl_certificate_dir_mode }}"
+
+- name: "Copy certificate | public key {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: "{{ role_ssl_certificate_cert }}"
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_cert_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+
+- name: "Copy certificate | privat key {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: "{{ role_ssl_certificate_key }}"
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_key_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+
+- name: "Copy certificate | root ca {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: "{{ role_ssl_certificate_root }}"
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_root_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+  when: role_ssl_certificate_root is defined and role_ssl_certificate_root | length > 0
+
+- name: "Copy certificate | intermediate {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: "{{ role_ssl_certificate_intermediate }}"
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_intermediate_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+  when: role_ssl_certificate_intermediate is defined and role_ssl_certificate_intermediate | length > 0
+
+- name: "Prepare short bundle with root and intermediate only | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: |
+      {{ role_ssl_certificate_intermediate }}
+      {{ role_ssl_certificate_root }}
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_bundle_short_filename_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+  when: >
+    (role_ssl_certificate_root is defined and role_ssl_certificate_root | length > 0) or
+    (role_ssl_certificate_intermediate is defined and role_ssl_certificate_intermediate | length > 0)
+
+- name: "Prepare full bundle with root, intermediate and cert | {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.copy:
+    content: |
+      {{ role_ssl_certificate_cert }}
+      {{ role_ssl_certificate_intermediate }}
+      {{ role_ssl_certificate_root }}
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_bundle_filename_ext }}"
+    owner: "{{ role_ssl_certificate_files_owner }}"
+    group: "{{ role_ssl_certificate_files_group }}"
+    mode: "{{ role_ssl_certificate_files_mode }}"
+  when: >
+    (role_ssl_certificate_root is defined and role_ssl_certificate_root | length > 0) or
+    (role_ssl_certificate_intermediate is defined and role_ssl_certificate_intermediate | length > 0)

@@ -1,0 +1,19 @@
+- name: "Delete certificate if empty or not defined | root ca {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.file:
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_root_ext }}"
+    state: absent
+  when: role_ssl_certificate_root is not defined or role_ssl_certificate_root | length == 0
+
+- name: "Delete certificate if empty or not defined | intermediate {{ role_ssl_certificate_files_name }}"
+  ansible.builtin.file:
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_intermediate_ext }}"
+    state: absent
+  when: role_ssl_certificate_intermediate is not defined or role_ssl_certificate_intermediate | length == 0
+
+- name: "Delete certificate if empty or not defined | bundle_short {{ role_ssl_certificate_bundle_short_filename_ext }}"
+  ansible.builtin.file:
+    dest: "{{ role_ssl_certificate_dir }}/{{ role_ssl_certificate_files_name }}.{{ role_ssl_certificate_intermediate_ext }}"
+    state: absent
+  when: >
+    (role_ssl_certificate_intermediate is not defined or role_ssl_certificate_intermediate | length == 0) and
+    (role_ssl_certificate_root is not defined or role_ssl_certificate_root | length == 0)

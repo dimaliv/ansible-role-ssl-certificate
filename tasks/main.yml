@@ -1,0 +1,12 @@
+- name: SSL | CleanUP
+  ansible.builtin.import_tasks: cleanup.yml
+  tags: prepare
+
+- name: SSL | Prepare
+  ansible.builtin.import_tasks: prepare.yml
+  tags: prepare
+
+- name: SSL | Check
+  ansible.builtin.import_tasks: check.yml
+  tags: check
+  when: role_ssl_certificate_need_check
